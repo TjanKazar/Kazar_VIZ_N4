@@ -2,8 +2,7 @@ using System.Text;
 
 namespace Kazar_VIZ_N4
 {
-    // salt variable is characters when i express it as foreach (byte c in salt)
-    // and giberish when i express it as foreach (char c in salt)
+    
     public partial class Form1 : Form
     {
         //initial values
@@ -19,6 +18,7 @@ namespace Kazar_VIZ_N4
         public int cost;
         public int byteSize = 16;
         public byte[] salt;
+        public byte[] saltBytes;
         public byte[] saltedHash;
         public string user;
         public byte[] allBytes;
@@ -31,11 +31,14 @@ namespace Kazar_VIZ_N4
         public Form1()
         {
             salt = VIZ4.salt(byteSize);
+            string temp = "";
             Console.WriteLine("salt:");
-            foreach(char b in salt)
+            foreach(byte b in salt)
             {
                 Console.Write(b);
+                temp += b;
             }
+            saltBytes = Encoding.UTF8.GetBytes(temp);
             hashingFuncs.Add(1, "MD5");
             hashingFuncs.Add(2, "SHA-1");
             hashingFuncs.Add(3, "SHA-256");
@@ -84,7 +87,7 @@ namespace Kazar_VIZ_N4
             if (UserFunctionKey != 4)
             {
             hashBytes = VIZ4.getHash(UserFunctionKey, rawBytes);
-                byte[] temp = rawBytes.Concat(salt).ToArray();
+                byte[] temp = rawBytes.Concat(saltBytes).ToArray();
                 Console.WriteLine("our value of temp : ");
                 Console.WriteLine("-----------original------------");
                 foreach (char c in temp)
@@ -97,7 +100,7 @@ namespace Kazar_VIZ_N4
             else
             {
                 hashBytes = VIZ4.getHash(rawBytes, cost);
-                byte[] temp = rawBytes.Concat(salt).ToArray();
+                byte[] temp = rawBytes.Concat(saltBytes).ToArray();
                 saltedHash = VIZ4.getHash(temp, cost);
             }
         }
@@ -324,6 +327,9 @@ namespace Kazar_VIZ_N4
             if (UserFunctionKey != 4)
             {
                 Console.WriteLine("hash value :");
+            Console.WriteLine();
+            Console.WriteLine("------------temp--end--------------");
+            Console.WriteLine();
                 foreach(char c in temp)
                     Console.Write(c);
                 hash = VIZ4.getHash(UserFunctionKey, temp);
@@ -333,9 +339,6 @@ namespace Kazar_VIZ_N4
                hash = VIZ4.getHash(temp, cost);
             }
             Console.WriteLine("------------temp--------------");
-            foreach (char c in temp)
-                Console.Write(c);
-            Console.WriteLine("------------temp--end--------------");
 
             bool match = true;
             Console.WriteLine("hash: " + hashingFuncs[UserFunctionKey]);

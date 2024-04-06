@@ -3,8 +3,7 @@ using System.Text;
 
 namespace Kazar_VIZ_N4
 {
-    // salt variable is characters when i express it as foreach (byte c in salt)
-    // and giberish when i express it as foreach (char c in salt)
+    
     public class VIZ4
     {
         public static byte[] getHash(int key, byte[] rawBytes)
