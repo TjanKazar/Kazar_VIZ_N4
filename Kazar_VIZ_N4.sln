@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34330.188
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kazar_VIZ_N4", "Kazar_VIZ_N4.csproj", "{948AB506-3E76-426B-8784-E7B52780CDBF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{948AB506-3E76-426B-8784-E7B52780CDBF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{948AB506-3E76-426B-8784-E7B52780CDBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{948AB506-3E76-426B-8784-E7B52780CDBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{948AB506-3E76-426B-8784-E7B52780CDBF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D1608B90-5491-4893-BB18-8DFBD09554E2}
+	EndGlobalSection
+EndGlobal
