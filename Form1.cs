@@ -2,6 +2,8 @@ using System.Text;
 
 namespace Kazar_VIZ_N4
 {
+    // salt variable is characters when i express it as foreach (byte c in salt)
+    // and giberish when i express it as foreach (char c in salt)
     public partial class Form1 : Form
     {
         //initial values
@@ -30,7 +32,7 @@ namespace Kazar_VIZ_N4
         {
             salt = VIZ4.salt(byteSize);
             Console.WriteLine("salt:");
-            foreach(byte b in salt)
+            foreach(char b in salt)
             {
                 Console.Write(b);
             }
@@ -72,6 +74,9 @@ namespace Kazar_VIZ_N4
             {
                 string filePath = openFileDialog1.FileName;
                 rawBytes = File.ReadAllBytes(filePath);
+                Console.WriteLine("rawBytes");
+                foreach (char c in rawBytes)
+                    Console.Write(c);
                 Console.WriteLine(filePath);
                 fileType = VIZ4.FileTypeFromPath(filePath);
                 Console.WriteLine(fileType);
@@ -79,14 +84,21 @@ namespace Kazar_VIZ_N4
             if (UserFunctionKey != 4)
             {
             hashBytes = VIZ4.getHash(UserFunctionKey, rawBytes);
-            saltedHash = hashBytes.Concat(salt).ToArray();
-            saltedHash = VIZ4.getHash(UserFunctionKey ,saltedHash);
+                byte[] temp = rawBytes.Concat(salt).ToArray();
+                Console.WriteLine("our value of temp : ");
+                Console.WriteLine("-----------original------------");
+                foreach (char c in temp)
+                    Console.Write(c);
+                Console.WriteLine();
+                Console.WriteLine("-----------original--end----------");
+                Console.WriteLine();
+                saltedHash = VIZ4.getHash(UserFunctionKey , temp);
             }
             else
             {
                 hashBytes = VIZ4.getHash(rawBytes, cost);
-                saltedHash = hashBytes.Concat(salt).ToArray();
-                saltedHash = VIZ4.getHash(saltedHash, cost);
+                byte[] temp = rawBytes.Concat(salt).ToArray();
+                saltedHash = VIZ4.getHash(temp, cost);
             }
         }
 
@@ -119,7 +131,6 @@ namespace Kazar_VIZ_N4
                 Console.WriteLine(cost);
             }
         }
-
 
 
         private void compare_button_Click(object sender, EventArgs e)
@@ -288,38 +299,47 @@ namespace Kazar_VIZ_N4
 
         private void textBox2_TextChanged(object sender, EventArgs e)
         {
-            anoterByteArray = Encoding.UTF8.GetBytes(textBox2.Text);
+           
+
         }
 
         private void textBox3_TextChanged(object sender, EventArgs e)
         {
             anoterSalt = Encoding.UTF8.GetBytes(textBox3.Text);
             Console.WriteLine("anoterSalt");
-            foreach (char c in anoterSalt)
+            foreach (char b in anoterSalt)
             {
-                Console.Write(c);
+                Console.Write(b);
             }
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
+            anoterByteArray = Encoding.ASCII.GetBytes(textBox2.Text);
+            Console.WriteLine("anoterByteArray");
+            foreach (char b in anoterByteArray)
+                Console.Write(b);
             byte[] temp = anoterByteArray.Concat(anoterSalt).ToArray();
             byte[] hash = null;
             if (UserFunctionKey != 4)
             {
-            hash = VIZ4.getHash(UserFunctionKey, temp);
+                Console.WriteLine("hash value :");
+                foreach(char c in temp)
+                    Console.Write(c);
+                hash = VIZ4.getHash(UserFunctionKey, temp);
             }
             else
             {
                hash = VIZ4.getHash(temp, cost);
             }
+            Console.WriteLine("------------temp--------------");
+            foreach (char c in temp)
+                Console.Write(c);
+            Console.WriteLine("------------temp--end--------------");
+
             bool match = true;
             Console.WriteLine("hash: " + hashingFuncs[UserFunctionKey]);
-            foreach (char c in hash)
-            { Console.Write(c);}
-            Console.WriteLine("saltedHash ");
-            foreach (char c in saltedHash)
-            { Console.Write(c);}
+           
             if (hash.Length != saltedHash.Length)
                 MessageBox.Show("length different");
             else if (hash.Length == 0)
