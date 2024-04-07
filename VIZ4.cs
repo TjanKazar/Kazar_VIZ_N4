@@ -6,9 +6,10 @@ namespace Kazar_VIZ_N4
     
     public class VIZ4
     {
-        public static byte[] getHash(int key, byte[] rawBytes)
+        public static string getHash(int key, string raw)
         {
             byte[] hashBytes = null;
+            byte[] rawBytes = Encoding.UTF8.GetBytes(raw);
             switch (key)
             {
                 case 1:
@@ -21,16 +22,15 @@ namespace Kazar_VIZ_N4
                     hashBytes = SHA256.HashData(rawBytes);
                     break;
             }
-            return hashBytes;
+            string hashString = Encoding.UTF8.GetString(hashBytes);
+            return hashString;
         }
-        public static byte[] getHash(byte[] rawBytes, int cost)
+        public static string GetHashBCrypt(string raw, int cost)
         {
-            byte[] hashBytes = null;
-            string rawString = Encoding.UTF8.GetString(rawBytes);
-            string hashString = BCrypt.Net.BCrypt.HashPassword(rawString, cost);
-            hashBytes = Encoding.UTF8.GetBytes(hashString);
-            return hashBytes;
+            string hashString = BCrypt.Net.BCrypt.HashPassword(raw, cost);
+            return hashString;
         }
+
         public static string FileTypeFromPath(string filePath)
         {
             int extentionIndex = filePath.LastIndexOf('.');
@@ -39,15 +39,20 @@ namespace Kazar_VIZ_N4
             else
                 return ".idk";
         }
-        public static byte[] salt(int byteSize)
+        public static int salt()
         {
-            byte[] salt = new byte[byteSize];
+            byte[] randomNumberBytes = new byte[4]; // Assuming you want a 32-bit integer
+
             using (var rng = new RNGCryptoServiceProvider())
             {
-                rng.GetBytes(salt);
+                rng.GetBytes(randomNumberBytes);
             }
 
-            return salt;
+            // Convert bytes to an integer
+            int randomNumber = BitConverter.ToInt32(randomNumberBytes, 0);
+
+            // Make sure the random number falls within the specified range
+            return Math.Abs(randomNumber);
         }
     }
 }

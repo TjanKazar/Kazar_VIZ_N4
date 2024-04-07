@@ -1,44 +1,34 @@
-using System.Text;
-
 namespace Kazar_VIZ_N4
 {
-    
+    // TRY CONVERTING THE getHash() form bCrypt to string, the error is in byte arrays 
     public partial class Form1 : Form
     {
         //initial values
         public string fileType;
-        public byte[] rawBytes;
-        public byte[] hashBytes;
+        public string raw;
+        public string hash;
         // comparing just hash
-        public byte[] compBytes;
-        public byte[] compHash;
+        public string comp;
+        public string compHash;
         public int UserFunctionKey;
         public Dictionary<int, string> hashingFuncs = new Dictionary<int, string>();
         public int sendCount = 1;
         public int cost;
-        public int byteSize = 16;
-        public byte[] salt;
-        public byte[] saltBytes;
-        public byte[] saltedHash;
+        public string salt;
+        public string saltedHash;
         public string user;
         public byte[] allBytes;
-        // comparing the whole thing again for some fucing reason
-        public byte[] anoterByteArray;
-        public byte[] anoterHash;
-        public byte[] anoterSalt;
+        // comparing the whole thing again
+        public string anoterString;
+        public string anoterHash;
+        public string anoterSalt;
 
 
         public Form1()
         {
-            salt = VIZ4.salt(byteSize);
-            string temp = "";
+            salt = VIZ4.salt().ToString();
             Console.WriteLine("salt:");
-            foreach(byte b in salt)
-            {
-                Console.Write(b);
-                temp += b;
-            }
-            saltBytes = Encoding.UTF8.GetBytes(temp);
+            Console.WriteLine(salt);
             hashingFuncs.Add(1, "MD5");
             hashingFuncs.Add(2, "SHA-1");
             hashingFuncs.Add(3, "SHA-256");
@@ -76,18 +66,19 @@ namespace Kazar_VIZ_N4
             if (userClickedOK == DialogResult.OK)
             {
                 string filePath = openFileDialog1.FileName;
-                rawBytes = File.ReadAllBytes(filePath);
+                raw = File.ReadAllText(filePath);
                 Console.WriteLine("rawBytes");
-                foreach (char c in rawBytes)
+                foreach (char c in raw)
                     Console.Write(c);
-                Console.WriteLine(filePath);
                 fileType = VIZ4.FileTypeFromPath(filePath);
+                Console.WriteLine("File Type : ");
                 Console.WriteLine(fileType);
+                Console.WriteLine();
             }
             if (UserFunctionKey != 4)
             {
-            hashBytes = VIZ4.getHash(UserFunctionKey, rawBytes);
-                byte[] temp = rawBytes.Concat(saltBytes).ToArray();
+                hash = VIZ4.getHash(UserFunctionKey, raw);
+                string temp = raw + salt;
                 Console.WriteLine("our value of temp : ");
                 Console.WriteLine("-----------original------------");
                 foreach (char c in temp)
@@ -95,13 +86,19 @@ namespace Kazar_VIZ_N4
                 Console.WriteLine();
                 Console.WriteLine("-----------original--end----------");
                 Console.WriteLine();
-                saltedHash = VIZ4.getHash(UserFunctionKey , temp);
+                saltedHash = VIZ4.getHash(UserFunctionKey, temp);
             }
             else
             {
-                hashBytes = VIZ4.getHash(rawBytes, cost);
-                byte[] temp = rawBytes.Concat(saltBytes).ToArray();
-                saltedHash = VIZ4.getHash(temp, cost);
+                Console.WriteLine("-----------original------------");
+
+                hash = VIZ4.GetHashBCrypt(raw, cost);
+                string temp = raw + salt;
+                Console.WriteLine("cost of original : " + cost);
+                Console.WriteLine(temp);
+                saltedHash = VIZ4.GetHashBCrypt(temp, cost);
+                Console.WriteLine("-----------original--end----------");
+
             }
         }
 
@@ -117,7 +114,7 @@ namespace Kazar_VIZ_N4
                 {
                     string filePath = saveFileDialog1.FileName;
 
-                    File.WriteAllBytes(filePath, hashBytes);
+                    File.WriteAllText(filePath, hash);
                     MessageBox.Show("File saved successfully.");
                     sendCount++;
                 }
@@ -146,24 +143,24 @@ namespace Kazar_VIZ_N4
             if (userClickedOK == DialogResult.OK)
             {
                 string filePath = openFileDialog1.FileName;
-                compBytes = File.ReadAllBytes(filePath);
+                comp = File.ReadAllText(filePath);
                 Console.WriteLine(filePath);
                 fileType = VIZ4.FileTypeFromPath(filePath);
                 Console.WriteLine(fileType);
             }
-            compHash = VIZ4.getHash(UserFunctionKey, compBytes);
+            compHash = VIZ4.getHash(UserFunctionKey, comp);
         }
 
         private void compare_Click(object sender, EventArgs e)
         {
             bool match = true;
-            if (compHash.Length != hashBytes.Length)
+            if (compHash.Length != hash.Length)
                 MessageBox.Show("The two hashes differ. Integrity compromised.");
             else
             {
-                for (int i = 0; i < hashBytes.Length; i++)
+                for (int i = 0; i < hash.Length; i++)
                 {
-                    if (compHash[i] != hashBytes[i])
+                    if (compHash[i] != hash[i])
                     {
                         match = false; break;
                     }
@@ -185,13 +182,13 @@ namespace Kazar_VIZ_N4
             DialogResult userClickedOK = openFileDialog1.ShowDialog();
             if (userClickedOK == DialogResult.OK)
             {
-                byte[] temp;
+                string temp;
                 string filePath = openFileDialog1.FileName;
-                temp = File.ReadAllBytes(filePath);
+                temp = File.ReadAllText(filePath);
                 Console.WriteLine(filePath);
                 fileType = VIZ4.FileTypeFromPath(filePath);
                 Console.WriteLine(fileType);
-                hashBytes = temp;
+                hash = temp;
 
             }
         }
@@ -205,9 +202,9 @@ namespace Kazar_VIZ_N4
             DialogResult userClickedOK = openFileDialog1.ShowDialog();
             if (userClickedOK == DialogResult.OK)
             {
-                byte[] temp;
+                string temp;
                 string filePath = openFileDialog1.FileName;
-                temp = File.ReadAllBytes(filePath);
+                temp = File.ReadAllText(filePath);
                 Console.WriteLine(filePath);
                 fileType = VIZ4.FileTypeFromPath(filePath);
                 Console.WriteLine(fileType);
@@ -227,7 +224,7 @@ namespace Kazar_VIZ_N4
                 {
                     string filePath = saveFileDialog1.FileName;
 
-                    File.WriteAllBytes(filePath, saltedHash);
+                    File.WriteAllText(filePath, saltedHash);
                     MessageBox.Show("File saved successfully.");
                     sendCount++;
                 }
@@ -256,17 +253,7 @@ namespace Kazar_VIZ_N4
                         writer.WriteLine("User name:");
                         writer.WriteLine(user);
                         writer.WriteLine("Salted hash:");
-                        writer.WriteLine(BitConverter.ToString(saltedHash).Replace("-", ""));
                         writer.WriteLine("Salt:");
-
-                        Console.WriteLine("salt after something happes:");
-                        string temp = "";
-                        foreach (byte b in salt)
-                        {
-                            Console.Write(b);
-                            temp += b;
-                        }
-                        writer.WriteLine(temp);
                     }
 
                     MessageBox.Show("File saved successfully.");
@@ -285,10 +272,10 @@ namespace Kazar_VIZ_N4
                 DialogResult userClickedOK = saveFileDialog1.ShowDialog();
                 if (userClickedOK == DialogResult.OK)
                 {
-                    byte[] temp = saltedHash;
+                    string temp = saltedHash;
                     string filePath = saveFileDialog1.FileName;
 
-                    File.WriteAllBytes(filePath, temp);
+                    File.WriteAllText(filePath, temp);
                     MessageBox.Show("File saved successfully.");
                     sendCount++;
                 }
@@ -302,13 +289,12 @@ namespace Kazar_VIZ_N4
 
         private void textBox2_TextChanged(object sender, EventArgs e)
         {
-           
-
+            anoterString = textBox2.Text;
         }
 
         private void textBox3_TextChanged(object sender, EventArgs e)
         {
-            anoterSalt = Encoding.UTF8.GetBytes(textBox3.Text);
+            anoterSalt = textBox3.Text;
             Console.WriteLine("anoterSalt");
             foreach (char b in anoterSalt)
             {
@@ -318,45 +304,61 @@ namespace Kazar_VIZ_N4
 
         private void button3_Click(object sender, EventArgs e)
         {
-            anoterByteArray = Encoding.ASCII.GetBytes(textBox2.Text);
-            Console.WriteLine("anoterByteArray");
-            foreach (char b in anoterByteArray)
-                Console.Write(b);
-            byte[] temp = anoterByteArray.Concat(anoterSalt).ToArray();
-            byte[] hash = null;
+
+            string temp = anoterString + anoterSalt;
+            string hash = "";
             if (UserFunctionKey != 4)
             {
                 Console.WriteLine("hash value :");
-            Console.WriteLine();
-            Console.WriteLine("------------temp--end--------------");
-            Console.WriteLine();
-                foreach(char c in temp)
+                Console.WriteLine();
+                Console.WriteLine();
+                foreach (char c in temp)
                     Console.Write(c);
                 hash = VIZ4.getHash(UserFunctionKey, temp);
             }
             else
             {
-               hash = VIZ4.getHash(temp, cost);
+                Console.WriteLine("------------temp--------------");
+                hash = VIZ4.GetHashBCrypt(temp, cost);
+                Console.WriteLine(temp);
+                Console.WriteLine("temp");
+                Console.WriteLine("cost of temp : " + cost);
+                Console.WriteLine("------------temp--end--------------");
+
             }
-            Console.WriteLine("------------temp--------------");
 
             bool match = true;
             Console.WriteLine("hash: " + hashingFuncs[UserFunctionKey]);
-           
-            if (hash.Length != saltedHash.Length)
-                MessageBox.Show("length different");
-            else if (hash.Length == 0)
-                MessageBox.Show("hash null");
+            Console.WriteLine("-----------hash----------");
+            Console.WriteLine(hash);
+            Console.WriteLine("-----------hash--end--------");
+            Console.WriteLine("-----------salted----------");
+            Console.WriteLine(saltedHash);
+            Console.WriteLine("-----------salted--end--------");
+            if (UserFunctionKey != 4)
+            {
+                if (hash.Length != saltedHash.Length)
+                    MessageBox.Show("length different");
+                else if (hash.Length == 0)
+                    MessageBox.Show("hash null");
+                else
+                {
+                    for (int i = 0; i < saltedHash.Length; i++)
+                    {
+                        if (hash[i] != saltedHash[i])
+                        {
+                            match = false; break;
+                        }
+                    }
+                    if (match == true)
+                        MessageBox.Show("The two hashes match. Integrity confirmed.");
+                    else
+                        MessageBox.Show("The two hashes differ. Integrity compromised.");
+                }
+            }
             else
             {
-                for (int i = 0; i < saltedHash.Length; i++)
-                {
-                    if (hash[i] != saltedHash[i])
-                    {
-                        match = false; break;
-                    }
-                }
-                if (match == true)
+                if (BCrypt.Net.BCrypt.Verify(hash, saltedHash))
                     MessageBox.Show("The two hashes match. Integrity confirmed.");
                 else
                     MessageBox.Show("The two hashes differ. Integrity compromised.");
